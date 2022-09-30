@@ -16,7 +16,7 @@ bootstrap.sh
 
 Your folder directory should look like 
 
-![OR Diagram](https://github.com/jonmenard/SampleRTModel/blob/main/ReadMeFiles/directorySetup.png?raw=true)
+![File Directory](https://github.com/jonmenard/SampleRTModel/blob/main/ReadMeFiles/directorySetup.png?raw=true)
 
 To run this model 
 
@@ -27,3 +27,9 @@ cd SampleRtModel/top_model
 mbed compile --target NUCLEO_F401RE --toolchain GCC_ARM --profile ../cadmium.json --flash
 
 ```
+
+This mode will take a digital input from pin 13 and relay it to pin 2 using a polling rate of 100ms while the digital inputs from pin 13 will also be relayed to pin 4 using an interupt. The interup signal should be faster than the polling.
+
+Sample video avaible at https://github.com/jonmenard/SampleRTModel/blob/main/ReadMeFiles/AsynchrnousEventTest.mp4
+
+![Sample Video](https://github.com/jonmenard/SampleRTModel/blob/main/ReadMeFiles/directorySetup.png?raw=true)
