@@ -1,23 +1,29 @@
 ### RT_ARM_MBED INSTALL ###
 
 Clone this repo into an empty folder
+Clone https://github.com/SimulationEverywhere/cadmium_v2/tree/dev-rt into the sample folder 
 
-Run './install.sh' to install dependencies
+Move the boost_1_70_0.7z from SampleRTModel up one directory. Unpack it and install (Offical instructions found here https://www.boost.org/doc/libs/1_70_0/more/getting_started/unix-variants.html)
 
-### SIMULATE MODELS ### 
 
-cd SeeedBot_RT_ARM_MBED/top_model/
 
-make clean; make all
+## Installing should be just ( I think)
+```shell
+cd boost_1_70_0 
+bootstrap.sh
+./b2 install
+```
 
-./COVID_SUP_TOP.exe
+Your folder directory should look like 
 
-This will run the standard Cadmium simulator. Cadmium logs will be generated in /top_model/covid_sup_test_output.txt The pin's inputs are stored in /top_model/inputs. The value of the output pins will be in /top_model/outputs. SVEC (Simulation Visualization for Embedded Cadmium) is a python GUI that parses these files and steps through the simulation to help debug the models.
+![OR Diagram](https://github.com/jonmenard/SampleRTModel/blob/main/ReadMeFiles/directorySetup.png?raw=true)
 
-### RUN MODELS ON TARGET PLATFORM ###
+To run this model 
 
-If you are using a platform other then the Nucleo-STM32F401, you will need to change the COMPILE_TARGET / FLASH_TARGET in the make file.
+## To run this model where NUCLEO_F01RE is replaced with the name of your microcontroller
+Plug you microcontroller in
+```shell
+cd SampleRtModel/top_model 
+mbed compile --target NUCLEO_F401RE --toolchain GCC_ARM --profile ../cadmium.json --flash
 
-cd SeeedBot_RT_ARM_MBED/top_model/
-
-make clean; make embedded; make flash;
+```
