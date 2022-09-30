@@ -32,4 +32,3 @@ This mode will take a digital input from pin 13 and relay it to pin 2 using a po
 
 Sample video avaible at https://github.com/jonmenard/SampleRTModel/blob/main/ReadMeFiles/AsynchrnousEventTest.mp4
 
-![Sample Video](https://github.com/jonmenard/SampleRTModel/blob/main/ReadMeFiles/AsynchrnousEventTest.mp4?raw=true)
