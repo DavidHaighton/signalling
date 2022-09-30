@@ -14,9 +14,12 @@ bootstrap.sh
 ./b2 install
 ```
 
-Your folder directory should look like 
+Your folder directory should look like:
 
 ![File Directory](https://github.com/jonmenard/SampleRTModel/blob/main/ReadMeFiles/directorySetup.png?raw=true)
+With the cloned cadmium like: 
+
+![File Directory](https://github.com/jonmenard/SampleRTModel/blob/main/ReadMeFiles/cadmiumDirectories.png?raw=true)
 
 To run this model 
 
