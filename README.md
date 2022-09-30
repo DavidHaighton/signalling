@@ -28,7 +28,7 @@ mbed compile --target NUCLEO_F401RE --toolchain GCC_ARM --profile ../cadmium.jso
 
 ```
 
-This mode will take a digital input from pin 13 and relay it to pin 2 using a polling rate of 100ms while the digital inputs from pin 13 will also be relayed to pin 4 using an interupt. The interup signal should be faster than the polling.
+This mode will take a digital input from pin 13 and relay it to pin 2 using a polling rate of 100ms while the digital inputs from pin 13 will also be relayed to pin 4 using an interupt. The interupt signal should be faster than the polling.
 
 Sample video avaible at https://github.com/jonmenard/SampleRTModel/blob/main/ReadMeFiles/AsynchrnousEventTest.mp4
 
