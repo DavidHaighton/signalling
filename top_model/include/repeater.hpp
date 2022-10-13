@@ -68,7 +68,7 @@ namespace cadmium::blinkySystem {
 		 * @param y reference to the atomic model output port set.
 		 */
 		void output(const RepeaterState& state) const override {	
-			out->addMessage(!state.output);	
+			out->addMessage(state.output);	
 		}
 
 		/**

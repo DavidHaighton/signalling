@@ -20,13 +20,14 @@ namespace cadmium::blinkySystem {
 		 */
 		blinkySystem(const std::string& id) : Coupled(id) {
 			
-			auto digitalOuput = addComponent<DigitalOutput>("digitalOuput", D4);
+			auto digitalOuput = addComponent<DigitalOutput>("digitalOuput", D3);
 			auto digitalOuput1 = addComponent<DigitalOutput>("digitalOuput1", D2);
-			auto interrupt = addComponent<InterruptInput>("interrupt", D13);
-			auto digitalInput = addComponent<DigitalInput>("digital", D13);
-			// auto repeater = addComponent<Repeater>("repeater", 2);
+			auto interrupt = addComponent<InterruptInput>("interrupt", D11);
+			auto digitalInput = addComponent<DigitalInput>("digital", D12);
+			auto repeater = addComponent<Repeater>("repeater", 1);
 			
-			addCoupling(digitalInput->out, digitalOuput1->in);
+//			addCoupling(digitalInput->out, digitalOuput1->in);
+			addCoupling(repeater->out, digitalOuput1->in);
 			addCoupling(interrupt->out, digitalOuput->in);
 		
 
