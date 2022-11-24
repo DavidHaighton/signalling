@@ -264,7 +264,7 @@ nsapi_error_t TLSSocketWrapper::continue_handshake()
     tr_info("TLS connection established");
 #endif
 
-#ifdef MBEDTLS_X509_CRT_PARSE_C
+#if defined(MBEDTLS_X509_CRT_PARSE_C) && defined(FEA_TRACE_SUPPORT)
     /* Prints the server certificate and verify it. */
     const size_t buf_size = 1024;
     char *buf = new char[buf_size];
@@ -398,6 +398,9 @@ nsapi_size_or_error_t TLSSocketWrapper::recv(void *data, nsapi_size_t size)
 
 nsapi_size_or_error_t TLSSocketWrapper::recvfrom(SocketAddress *address, void *data, nsapi_size_t size)
 {
+    if (address) {
+        getpeername(address);
+    }
     return recv(data, size);
 }
 

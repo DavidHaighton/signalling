@@ -20,13 +20,9 @@
 
 using utest::v1::Case;
 
-#if defined(MBED_RTOS_SINGLE_THREAD)
+#if defined(MBED_RTOS_SINGLE_THREAD) || !DEVICE_USTICKER
 #error [NOT_SUPPORTED] test not supported
-#endif
-
-#if !DEVICE_USTICKER
-#error [NOT_SUPPORTED] test not supported
-#endif
+#else
 
 #define TEST_STACK_SIZE   512
 #define MAX_FLAG_POS 30
@@ -65,7 +61,7 @@ template <int32_t signals, uint32_t timeout, int32_t test_val>
 void run_release_wait_signal_wait(Sync *sync)
 {
     sync->sem_parent.release();
-    sync->sem_child.wait();
+    sync->sem_child.acquire();
     osEvent ev = Thread::signal_wait(signals, timeout);
     TEST_ASSERT_EQUAL(test_val, ev.status);
 }
@@ -81,7 +77,7 @@ template <int32_t signals, int32_t test_val>
 void run_wait_clear(Sync *sync)
 {
     sync->sem_parent.release();
-    sync->sem_child.wait();
+    sync->sem_child.acquire();
     int32_t ret = ThisThread::flags_clear(signals);
     TEST_ASSERT_EQUAL(test_val, ret);
 }
@@ -92,7 +88,7 @@ void run_double_wait_clear(Sync *sync)
     int32_t ret;
 
     sync->sem_parent.release();
-    sync->sem_child.wait();
+    sync->sem_child.acquire();
     ret = ThisThread::flags_clear(signals1);
     TEST_ASSERT_EQUAL(test_val1, ret);
 
@@ -106,7 +102,7 @@ void run_loop_wait_clear(Sync *sync)
     for (int i = 0; i <= MAX_FLAG_POS; i++) {
         int32_t signal = 1 << i;
         signals |= signal;
-        sync->sem_child.wait();
+        sync->sem_child.acquire();
         int32_t ret = ThisThread::flags_clear(NO_SIGNALS);
         TEST_ASSERT_EQUAL(signals, ret);
         sync->sem_parent.release();
@@ -128,7 +124,7 @@ void test_clear_no_signals(void)
 
     Thread t(osPriorityNormal, TEST_STACK_SIZE);
     t.start(callback(run_double_wait_clear<NO_SIGNALS, NO_SIGNALS, ALL_SIGNALS, ALL_SIGNALS>, &sync));
-    sem_parent.wait();
+    sem_parent.acquire();
     t.signal_set(ALL_SIGNALS);
     sem_child.release();
     t.join();
@@ -163,7 +159,7 @@ void test_set_all(void)
     Thread t(osPriorityNormal, TEST_STACK_SIZE);
     t.start(callback(run_wait_clear<NO_SIGNALS, ALL_SIGNALS>, &sync));
 
-    sem_parent.wait();
+    sem_parent.acquire();
     ret = t.signal_set(ALL_SIGNALS);
     TEST_ASSERT_EQUAL(ALL_SIGNALS, ret);
 
@@ -190,7 +186,7 @@ void test_set_prohibited(void)
     Thread t(osPriorityNormal, TEST_STACK_SIZE);
     t.start(callback(run_wait_clear<NO_SIGNALS, ALL_SIGNALS>, &sync));
 
-    sem_parent.wait();
+    sem_parent.acquire();
     t.signal_set(ALL_SIGNALS);
 
 #if !MBED_TRAP_ERRORS_ENABLED
@@ -216,7 +212,7 @@ void test_clear_all(void)
 
     Thread t(osPriorityNormal, TEST_STACK_SIZE);
     t.start(callback(run_double_wait_clear<ALL_SIGNALS, NO_SIGNALS, ALL_SIGNALS, NO_SIGNALS>, &sync));
-    sem_parent.wait();
+    sem_parent.acquire();
     t.signal_set(ALL_SIGNALS);
     sem_child.release();
     t.join();
@@ -245,7 +241,7 @@ void test_set_all_loop(void)
         signals |= signal;
         TEST_ASSERT_EQUAL(signals, ret);
         sem_child.release();
-        sem_parent.wait();
+        sem_parent.acquire();
     }
     t.join();
 }
@@ -280,7 +276,7 @@ void test_wait_all_already_set(void)
     Thread t(osPriorityNormal, TEST_STACK_SIZE);
     t.start(callback(run_release_wait_signal_wait<ALL_SIGNALS, osWaitForever, osEventSignal>, &sync));
 
-    sem_parent.wait();
+    sem_parent.acquire();
     TEST_ASSERT_EQUAL(Thread::WaitingSemaphore, t.get_state());
     t.signal_set(ALL_SIGNALS);
     sem_child.release();
@@ -300,7 +296,7 @@ void test_wait_all(void)
     Thread t(osPriorityNormal, TEST_STACK_SIZE);
     t.start(callback(run_release_signal_wait<ALL_SIGNALS, osWaitForever, osEventSignal>, &sem));
 
-    sem.wait();
+    sem.acquire();
     TEST_ASSERT_EQUAL(Thread::WaitingThreadFlag, t.get_state());
 
     t.signal_set(ALL_SIGNALS);
@@ -321,7 +317,7 @@ void test_wait_all_loop(void)
     Thread t(osPriorityNormal, TEST_STACK_SIZE);
     t.start(callback(run_release_signal_wait<ALL_SIGNALS, osWaitForever, osEventSignal>, &sem));
 
-    sem.wait();
+    sem.acquire();
     TEST_ASSERT_EQUAL(Thread::WaitingThreadFlag, t.get_state());
 
     for (int i = 0; i < MAX_FLAG_POS; i++) {
@@ -348,7 +344,7 @@ void test_set_double(void)
     Thread t(osPriorityNormal, TEST_STACK_SIZE);
     t.start(callback(run_release_signal_wait < SIGNAL1 | SIGNAL2 | SIGNAL3, osWaitForever, osEventSignal >, &sem));
 
-    sem.wait();
+    sem.acquire();
     TEST_ASSERT_EQUAL(Thread::WaitingThreadFlag, t.get_state());
 
     ret = t.signal_set(SIGNAL1);
@@ -396,3 +392,5 @@ int main()
 {
     return !utest::v1::Harness::run(specification);
 }
+
+#endif // defined(MBED_RTOS_SINGLE_THREAD) || !DEVICE_USTICKER

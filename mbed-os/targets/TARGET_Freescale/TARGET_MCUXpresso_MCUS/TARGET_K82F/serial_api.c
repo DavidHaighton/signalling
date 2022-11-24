@@ -152,10 +152,10 @@ static inline void uart_irq(uint32_t transmit_empty, uint32_t receive_full, uint
     }
 
     if (serial_irq_ids[index] != 0) {
-        if (transmit_empty)
+        if (transmit_empty && (LPUART_GetEnabledInterrupts(uart_addrs[index]) & kLPUART_TxDataRegEmptyInterruptEnable))
             irq_handler(serial_irq_ids[index], TxIrq);
 
-        if (receive_full)
+        if (receive_full && (LPUART_GetEnabledInterrupts(uart_addrs[index]) & kLPUART_RxDataRegFullInterruptEnable))
             irq_handler(serial_irq_ids[index], RxIrq);
     }
 }
@@ -330,6 +330,16 @@ const PinMap *serial_cts_pinmap()
 const PinMap *serial_rts_pinmap()
 {
     return PinMap_UART_RTS;
+}
+
+void serial_wait_tx_complete(uint32_t uart_index)
+{
+    LPUART_Type *base = uart_addrs[uart_index];
+
+    /* Wait till data is flushed out of transmit buffer */
+    while (!(kLPUART_TransmissionCompleteFlag & LPUART_GetStatusFlags((LPUART_Type *)base)))
+    {
+    }
 }
 
 #endif

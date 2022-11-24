@@ -22,13 +22,9 @@
 
 using utest::v1::Case;
 
-#if defined(MBED_RTOS_SINGLE_THREAD)
+#if defined(MBED_RTOS_SINGLE_THREAD) || !DEVICE_USTICKER
 #error [NOT_SUPPORTED] test not supported
-#endif
-
-#if !DEVICE_USTICKER
-#error [NOT_SUPPORTED] test not supported
-#endif
+#else
 
 #if defined(__CORTEX_M23) || defined(__CORTEX_M33)
 #define THREAD_STACK_SIZE   512
@@ -66,7 +62,7 @@ void send_thread_sync(EventFlags *ef)
     for (uint32_t i = 0; i <= MAX_FLAG_POS; i++) {
         const uint32_t flag = flags & (1 << i);
         if (flag) {
-            sync_sem.wait();
+            sync_sem.acquire();
             ef->set(flag);
             ThisThread::sleep_for(wait_ms);
         }
@@ -374,3 +370,5 @@ int main()
 {
     return !utest::v1::Harness::run(specification);
 }
+
+#endif // defined(MBED_RTOS_SINGLE_THREAD) || !DEVICE_USTICKER

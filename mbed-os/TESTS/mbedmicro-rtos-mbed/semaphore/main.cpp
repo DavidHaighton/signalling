@@ -21,13 +21,9 @@
 
 using namespace utest::v1;
 
-#if defined(MBED_RTOS_SINGLE_THREAD)
+#if defined(MBED_RTOS_SINGLE_THREAD) || !DEVICE_USTICKER
 #error [NOT_SUPPORTED] test not supported
-#endif
-
-#if !DEVICE_USTICKER
-#error [NOT_SUPPORTED] test not supported
-#endif
+#else
 
 #define THREAD_DELAY     30
 #define SEMAPHORE_SLOTS  2
@@ -46,7 +42,7 @@ void test_thread(int const *delay)
 {
     const int thread_delay = *delay;
     while (true) {
-        two_slots.wait();
+        two_slots.acquire();
         sem_counter++;
         const bool sem_lock_failed = sem_counter > SEMAPHORE_SLOTS;
         if (sem_lock_failed) {
@@ -96,8 +92,7 @@ struct thread_data {
 
 void single_thread(struct thread_data *data)
 {
-    int32_t cnt = data->sem->wait();
-    TEST_ASSERT_EQUAL(1, cnt);
+    data->sem->acquire();
     data->data++;
 }
 
@@ -140,8 +135,8 @@ void test_single_thread()
 
 void timeout_thread(Semaphore *sem)
 {
-    int32_t cnt = sem->wait(30);
-    TEST_ASSERT_EQUAL(0, cnt);
+    bool acquired = sem->try_acquire_for(30);
+    TEST_ASSERT_FALSE(acquired);
 }
 
 /** Test timeout
@@ -188,8 +183,8 @@ void test_no_timeout()
     Timer timer;
     timer.start();
 
-    int32_t cnt = sem.wait(0);
-    TEST_ASSERT_EQUAL(T, cnt);
+    bool acquired = sem.try_acquire();
+    TEST_ASSERT_EQUAL(T > 0, acquired);
 
     TEST_ASSERT_UINT32_WITHIN(5000, 0, timer.read_us());
 }
@@ -205,8 +200,8 @@ void test_multiple_tokens_wait()
     Semaphore sem(5);
 
     for (int i = 5; i >= 0; i--) {
-        int32_t cnt = sem.wait(0);
-        TEST_ASSERT_EQUAL(i, cnt);
+        bool acquired = sem.try_acquire();
+        TEST_ASSERT_EQUAL(i > 0, acquired);
     }
 }
 
@@ -250,3 +245,5 @@ int main()
 {
     return !Harness::run(specification);
 }
+
+#endif // defined(MBED_RTOS_SINGLE_THREAD) || !DEVICE_USTICKER

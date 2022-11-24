@@ -182,8 +182,14 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     if (ssel != NC) {
         pinmap_pinout(ssel, PinMap_SPI_SSEL);
         handle->Init.NSS = SPI_NSS_HARD_OUTPUT;
+#if defined(SPI_NSS_PULSE_ENABLE)
+        handle->Init.NSSPMode = SPI_NSS_PULSE_ENABLE;
+#endif
     } else {
         handle->Init.NSS = SPI_NSS_SOFT;
+#if defined(SPI_NSS_PULSE_DISABLE)
+        handle->Init.NSSPMode = SPI_NSS_PULSE_DISABLE;
+#endif
     }
 
     /* Fill default value */
@@ -206,10 +212,15 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     handle->Init.TIMode            = SPI_TIMODE_DISABLE;
 
 #if TARGET_STM32H7
-    handle->Init.NSSPMode          = SPI_NSS_PULSE_DISABLE;
     handle->Init.MasterKeepIOState = SPI_MASTER_KEEP_IO_STATE_ENABLE;
     handle->Init.FifoThreshold     = SPI_FIFO_THRESHOLD_01DATA;
 #endif
+
+    /*
+    * According the STM32 Datasheet for SPI peripheral we need to PULLDOWN
+    * or PULLUP the SCK pin according the polarity used.
+    */
+    pin_mode(spiobj->pin_sclk, (handle->Init.CLKPolarity == SPI_POLARITY_LOW) ? PullDown: PullUp);
 
     init_spi(obj);
 }
@@ -285,6 +296,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
 {
     struct spi_s *spiobj = SPI_S(obj);
     SPI_HandleTypeDef *handle = &(spiobj->handle);
+    PinMode pull = 0;
 
     DEBUG_PRINTF("spi_format, bits:%d, mode:%d, slave?:%d\r\n", bits, mode, slave);
 
@@ -325,6 +337,13 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
         debug("3 wires SPI slave not supported - slave will only read\r\n");
         handle->Init.Direction = SPI_DIRECTION_2LINES;
     }
+
+    /*
+    * According the STM32 Datasheet for SPI peripheral we need to PULLDOWN
+    * or PULLUP the SCK pin according the polarity used.
+    */
+    pull = (handle->Init.CLKPolarity == SPI_POLARITY_LOW) ? PullDown: PullUp;
+    pin_mode(spiobj->pin_sclk, pull);
 
     init_spi(obj);
 }
@@ -475,9 +494,8 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
     struct spi_s *spiobj = SPI_S(obj);
     SPI_HandleTypeDef *handle = &(spiobj->handle);
     int total = (tx_length > rx_length) ? tx_length : rx_length;
-    int i = 0;
     if (handle->Init.Direction == SPI_DIRECTION_2LINES) {
-        for (i = 0; i < total; i++) {
+        for (int i = 0; i < total; i++) {
             char out = (i < tx_length) ? tx_buffer[i] : write_fill;
             char in = spi_master_write(obj, out);
             if (i < rx_length) {
@@ -642,7 +660,7 @@ static int spi_master_start_asynch_transfer(spi_t *obj, transfer_type_t transfer
         case SPI_TRANSFER_TYPE_RX:
             // the receive function also "transmits" the receive buffer so in order
             // to guarantee that 0xff is on the line, we explicitly memset it here
-            memset(rx, SPI_FILL_WORD, length);
+            memset(rx, SPI_FILL_CHAR, length);
             rc = HAL_SPI_Receive_IT(handle, (uint8_t *)rx, words);
             break;
         default:

@@ -17,7 +17,6 @@
 #define STM32_EMAC_H_
 
 #include "EMAC.h"
-#include "rtos/Semaphore.h"
 #include "rtos/Mutex.h"
 
 class STM32_EMAC : public EMAC {
@@ -168,6 +167,7 @@ private:
     osThreadId_t rmii_watchdog_thread; /**< Watchdog processing thread */
 #endif
     rtos::Mutex TXLockMutex;/**< TX critical section mutex */
+    rtos::Mutex RXLockMutex;/**< RX critical section mutex */
     emac_link_input_cb_t emac_link_input_cb; /**< Callback for incoming data */
     emac_link_state_change_cb_t emac_link_state_cb; /**< Link state change callback */
     EMACMemoryManager *memory_manager; /**< Memory manager */

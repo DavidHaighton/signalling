@@ -30,6 +30,7 @@
 #error [NOT_SUPPORTED] storage test not supported on this platform
 #endif
 
+#if COMPONENT_SPIF || COMPONENT_SD
 using namespace utest::v1;
 using namespace mbed;
 
@@ -2095,7 +2096,7 @@ Case cases[] = {
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(3000, "default_auto");
+    GREENTEA_SETUP(300, "default_auto");
     return greentea_test_setup_handler(number_of_cases);
 }
 
@@ -2105,3 +2106,5 @@ int main()
 {
     return !Harness::run(specification);
 }
+
+#endif // COMPONENT_SPIF || COMPONENT_SD

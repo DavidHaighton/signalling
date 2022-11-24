@@ -17,19 +17,15 @@
 
 #if !defined(COMPONENT_PSA_SRV_IPC)
 #error [NOT_SUPPORTED] Test supported only on PSA targets
-#endif
+#else
 
 #if (defined( __CC_ARM ) || defined(__ARMCC_VERSION) || defined( __ICCARM__ ))
 #error [NOT_SUPPORTED] this test is supported on GCC only
-#endif
+#else
 
-#if defined(TARGET_FUTURE_SEQUANA_PSA)
-#error [NOT_SUPPORTED] Disable this Test until FUTURE_SEQUANA_PSA enables Memory protection
-#endif
-
-#if defined(__CORTEX_M33)
-#error [NOT_SUPPORTED] Cannot run on M33 core as SecureFault is implemented in secure-side and cant be remapped
-#endif
+#if DOMAIN_NS == 1
+#error [NOT_SUPPORTED] Cannot run on M23/M33 core as SecureFault is implemented in secure-side and cant be remapped
+#else
 
 #include "utest/utest.h"
 #include "unity/unity.h"
@@ -160,3 +156,7 @@ int main()
 {
     Harness::run(specification);
 }
+
+#endif // DOMAIN_NS == 1
+#endif // (defined( __CC_ARM ) || defined(__ARMCC_VERSION) || defined( __ICCARM__ ))
+#endif // !defined(COMPONENT_PSA_SRV_IPC)

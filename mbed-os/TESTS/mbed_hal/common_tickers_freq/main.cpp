@@ -30,14 +30,9 @@
 #include "hal/lp_ticker_api.h"
 #include "hal/mbed_lp_ticker_wrapper.h"
 
-#if !DEVICE_USTICKER
+#if defined(SKIP_TIME_DRIFT_TESTS) || !DEVICE_USTICKER
 #error [NOT_SUPPORTED] test not supported
-#endif
-
-//FastModels not support time drifting test
-#if defined(__ARM_FM)
-#error [NOT_SUPPORTED] test not supported
-#endif
+#else
 
 #define US_PER_S 1000000
 
@@ -209,3 +204,5 @@ int main()
 {
     Harness::run(specification);
 }
+
+#endif // defined(SKIP_TIME_DRIFT_TESTS) || !DEVICE_USTICKER

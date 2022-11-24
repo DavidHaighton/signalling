@@ -32,7 +32,7 @@ extern "C" {
 
 #if !DEVICE_USTICKER
 #error [NOT_SUPPORTED] test not supported
-#endif
+#else
 
 #define US_PER_S 1000000
 
@@ -129,7 +129,7 @@ void overflow_protect()
         return;
     }
 
-    while (intf->read() > ticks_now);
+    while (intf->read() >= ticks_now);
 }
 
 void ticker_event_handler_stub(const ticker_data_t *const ticker)
@@ -605,3 +605,4 @@ int main()
 {
     return !Harness::run(specification);
 }
+#endif // !DEVICE_USTICKER

@@ -1,6 +1,4 @@
 #include <cadmium/core/simulation/root_coordinator.hpp>
-#include <cadmium/core/logger/csv.hpp>
-#include <cadmium/core/logger/rt.hpp>
 #include <limits>
 #include "blinkySystem.hpp"
 #include "../mbed.h"
@@ -9,21 +7,10 @@ using namespace cadmium::blinkySystem;
 
 int main(int argc, char *argv[]) {
 	// First, we parse the arguments
-	std::ifstream file;
-
-	printf("starting simulation ...\n");
-//	cout << "starting simulation ..." << endl;
+	// std::ifstream file;
 
 	auto model = std::make_shared<blinkySystem>("blinkySystem");
 	auto rootCoordinator = cadmium::RootCoordinator(model);
-
-#ifdef RT_ARM_MBED
-	auto logger = std::make_shared<cadmium::RTLogger>(";");
-#else
-	auto logger = std::make_shared<cadmium::CSVLogger>("hola.csv", ";");
-#endif
-	rootCoordinator.setLogger(logger);
-
 	rootCoordinator.start();
 	rootCoordinator.simulate(std::numeric_limits<double>::infinity());
 	rootCoordinator.stop();

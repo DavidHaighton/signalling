@@ -27,7 +27,7 @@ using namespace utest::v1;
 
 #ifndef MBED_EXTENDED_TESTS
 #error [NOT_SUPPORTED] Filesystem tests not supported by default
-#endif
+#else
 
 static const int mem_alloc_threshold = 32 * 1024;
 
@@ -81,6 +81,10 @@ void test_read_write()
     TEST_ASSERT_EQUAL(TEST_SIZE, size);
     err = file.close();
     TEST_ASSERT_EQUAL(0, err);
+
+    struct stat st;
+    err = fs.stat("test_read_write.dat", &st);
+    TEST_ASSERT_EQUAL(TEST_SIZE, st.st_size);
 
     err = file.open(&fs, "test_read_write.dat", O_RDONLY);
     TEST_ASSERT_EQUAL(0, err);
@@ -189,3 +193,5 @@ int main()
 {
     return !Harness::run(specification);
 }
+
+#endif // MBED_EXTENDED_TESTS

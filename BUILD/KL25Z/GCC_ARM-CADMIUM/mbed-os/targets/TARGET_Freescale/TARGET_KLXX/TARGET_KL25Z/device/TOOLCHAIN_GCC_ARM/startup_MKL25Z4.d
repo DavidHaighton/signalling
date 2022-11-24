@@ -1,3 +1,0 @@
-..\BUILD\KL25Z\GCC_ARM-CADMIUM\mbed-os\targets\TARGET_Freescale\TARGET_KLXX\TARGET_KL25Z\device\TOOLCHAIN_GCC_ARM\startup_MKL25Z4.o: \
- ..\mbed-os\targets\TARGET_Freescale\TARGET_KLXX\TARGET_KL25Z\device\TOOLCHAIN_GCC_ARM\startup_MKL25Z4.S \
- ..\BUILD\KL25Z\GCC_ARM-CADMIUM\mbed_config.h

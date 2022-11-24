@@ -34,7 +34,8 @@ static const size_t buffer_size = 20;
 static const int    num_of_threads = 3;
 static const char   num_of_keys = 3;
 
-static const int heap_alloc_threshold_size = 4096;
+/* Forked 3 threads plus misc, so minimum (4 * OS_STACK_SIZE) heap are required. */
+static const int heap_alloc_threshold_size = 4 * OS_STACK_SIZE;
 
 static const char *keys[] = {"key1", "key2", "key3"};
 
@@ -977,7 +978,7 @@ Case cases[] = {
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(3000, "default_auto");
+    GREENTEA_SETUP(300, "default_auto");
     return greentea_test_setup_handler(number_of_cases);
 }
 

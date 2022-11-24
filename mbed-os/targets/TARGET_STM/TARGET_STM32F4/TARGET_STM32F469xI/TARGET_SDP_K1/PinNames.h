@@ -309,6 +309,7 @@ typedef enum {
     LED1        = PK_7, // Red LED
     LED2        = PK_6, // Orange LED
     LED3        = PK_5, // Green LED
+    LED4        = PK_4,
     LED_RED     = LED1,
     LED_ORANGE  = LED2,
     LED_GREEN   = LED3,
@@ -317,13 +318,6 @@ typedef enum {
     USBTX       = STDIO_UART_TX,
     USBRX       = STDIO_UART_RX,
     
-    // SPI and I2C pins on Arduino connector
-    SPI_CS      = D10,
-    SPI_MOSI    = D11,
-    SPI_MISO    = D12,
-    SPI_SCK     = D13,
-    I2C_SDA     = D14,
-    I2C_SCL     = D15,
 
     // Adding these signals for the SDP connector
     SDP_SPI_MOSI = PF_9,		// SDP Connector for SPI lines
@@ -347,8 +341,6 @@ typedef enum {
     SDP_TMR_A    = PB_14,		// SDP connector TMR A, B & D
     SDP_TMR_B    = PE_6,
     SDP_TMR_D    = PC_8,
-
-    PWM_OUT      = PA_1,
 
     /**** USB pins ****/
     USB_OTG_HS_DM = PB_14,

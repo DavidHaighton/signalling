@@ -19,18 +19,9 @@
 #include "utest/utest.h"
 #include "unity/unity.h"
 
-#if defined(MBED_RTOS_SINGLE_THREAD)
+#if defined(SKIP_TIME_DRIFT_TESTS) || defined(MBED_RTOS_SINGLE_THREAD) || !DEVICE_USTICKER
 #error [NOT_SUPPORTED] test not supported
-#endif
-
-#if !DEVICE_USTICKER
-#error [NOT_SUPPORTED] test not supported
-#endif
-
-//FastModels not support time drifting test
-#if defined(__ARM_FM)
-#error [NOT_SUPPORTED] test not supported
-#endif
+#else
 
 using utest::v1::Case;
 
@@ -124,3 +115,5 @@ int main()
 {
     utest::v1::Harness::run(specification);
 }
+
+#endif // defined(SKIP_TIME_DRIFT_TESTS) || defined(MBED_RTOS_SINGLE_THREAD) || !DEVICE_USTICKER

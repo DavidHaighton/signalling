@@ -4,8 +4,8 @@
 #include <cadmium/core/modeling/coupled.hpp>
 #include <cadmium/core/real_time/arm_mbed/io/digitalOutput.hpp>
 #include <cadmium/core/real_time/arm_mbed/io/digitalInput.hpp>
-#include <cadmium/core/real_time/arm_mbed/io/interruptInput.hpp>
-#include "./repeater.hpp"
+// #include <cadmium/core/real_time/arm_mbed/io/interruptInput.hpp>
+#include "blinky.hpp"
 #include "../mbed.h"
 #include "PinNames.h"
 
@@ -19,17 +19,18 @@ namespace cadmium::blinkySystem {
 		 * @param filePath path to the input file to be read.
 		 */
 		blinkySystem(const std::string& id) : Coupled(id) {
-			
-			auto digitalOuput = addComponent<DigitalOutput>("digitalOuput", D3);
-			auto digitalOuput1 = addComponent<DigitalOutput>("digitalOuput1", D2);
-			auto interrupt = addComponent<InterruptInput>("interrupt", D11);
-			auto digitalInput = addComponent<DigitalInput>("digital", D12);
-			auto repeater = addComponent<Repeater>("repeater", 1);
-			
-//			addCoupling(digitalInput->out, digitalOuput1->in);
-			addCoupling(repeater->out, digitalOuput1->in);
-			addCoupling(interrupt->out, digitalOuput->in);
 		
+			// NUCLEO F103RB	
+			auto digitalOutput = addComponent<DigitalOutput>("digitalOuput", LED1); // PC_13); // LED1); // D3);
+			auto digitalInput  = addComponent<DigitalInput>("digital", PC_13); // PB_14); // PC_13); // D11);
+			// BLUE PILL
+			// auto digitalOutput = addComponent<DigitalOutput>("digitalOuput", PC_13); // LED1); // D3);
+			// auto digitalInput  = addComponent<DigitalInput>("digital", PB_14); // PC_13); // D11);
+			auto blinky = addComponent<Blinky>("blinky");
+			
+			addCoupling(digitalInput->out, blinky->in);
+			addCoupling(blinky->out, digitalOutput->in);
+			// addCoupling(digitalInput->out, digitalOutput->in);
 
 		}
 	};

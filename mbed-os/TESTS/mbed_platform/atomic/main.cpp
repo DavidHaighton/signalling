@@ -20,7 +20,7 @@
 
 #if !MBED_CONF_RTOS_PRESENT
 #error [NOT_SUPPORTED] test not supported
-#endif
+#else
 
 #define THREAD_STACK 512
 
@@ -145,7 +145,7 @@ void test_atomic_add()
 
 utest::v1::status_t test_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(30, "default_auto");
+    GREENTEA_SETUP(60, "default_auto");
     return utest::v1::verbose_test_setup_handler(number_of_cases);
 }
 
@@ -183,3 +183,5 @@ int main()
 {
     return !utest::v1::Harness::run(specification);
 }
+
+#endif // !MBED_CONF_RTOS_PRESENT

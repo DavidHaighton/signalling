@@ -60,12 +60,12 @@ static void uart_irq(UARTName uart_name)
         UART_HandleTypeDef *huart = &uart_handlers[id];
         if (serial_irq_ids[id] != 0) {
             if (__HAL_UART_GET_FLAG(huart, UART_FLAG_TXE) != RESET) {
-                if (__HAL_UART_GET_IT(huart, UART_IT_TXE) != RESET) {
+                if (__HAL_UART_GET_IT(huart, UART_IT_TXE) != RESET && __HAL_UART_GET_IT_SOURCE(huart, UART_IT_TXE)) {
                     irq_handler(serial_irq_ids[id], TxIrq);
                 }
             }
             if (__HAL_UART_GET_FLAG(huart, UART_FLAG_RXNE) != RESET) {
-                if (__HAL_UART_GET_IT(huart, UART_IT_RXNE) != RESET) {
+                if (__HAL_UART_GET_IT(huart, UART_IT_RXNE) != RESET && __HAL_UART_GET_IT_SOURCE(huart, UART_IT_RXNE)) {
                     irq_handler(serial_irq_ids[id], RxIrq);
                     /* Flag has been cleared when reading the content */
                 }
@@ -536,7 +536,7 @@ int serial_irq_handler_asynch(serial_t *obj)
 
     volatile int return_event = 0;
     uint8_t *buf = (uint8_t *)(obj->rx_buff.buffer);
-    uint8_t i = 0;
+    size_t i = 0;
 
     // TX PART:
     if (__HAL_UART_GET_FLAG(huart, UART_FLAG_TC) != RESET) {

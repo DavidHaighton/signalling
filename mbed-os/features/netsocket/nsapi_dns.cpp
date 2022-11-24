@@ -105,10 +105,10 @@ static void nsapi_dns_query_async_initiate_next(void);
 // *INDENT-OFF*
 static nsapi_addr_t dns_servers[DNS_SERVERS_SIZE] = {
     {NSAPI_IPv4, {8, 8, 8, 8}},                             // Google
-    {NSAPI_IPv4, {209, 244, 0, 3}},                         // Level 3
-    {NSAPI_IPv4, {84, 200, 69, 80}},                        // DNS.WATCH
     {NSAPI_IPv6, {0x20,0x01, 0x48,0x60, 0x48,0x60, 0,0,     // Google
                   0,0, 0,0, 0,0, 0x88,0x88}},
+    {NSAPI_IPv4, {209, 244, 0, 3}},                         // Level 3
+    {NSAPI_IPv4, {84, 200, 69, 80}},                        // DNS.WATCH
     {NSAPI_IPv6, {0x20,0x01, 0x16,0x08, 0,0x10, 0,0x25,     // DNS.WATCH
                   0,0, 0,0, 0x1c,0x04, 0xb1,0x2f}},
 };
@@ -131,6 +131,13 @@ static bool dns_timer_running = false;
 // DNS server configuration
 extern "C" nsapi_error_t nsapi_dns_add_server(nsapi_addr_t addr, const char *interface_name)
 {
+    // check if addr was already added
+    for (int i = 0; i < DNS_SERVERS_SIZE; i++) {
+        if (memcmp(&addr, &dns_servers[i], sizeof(nsapi_addr_t)) == 0) {
+            return NSAPI_ERROR_OK;
+        }
+    }
+
     memmove(&dns_servers[1], &dns_servers[0],
             (DNS_SERVERS_SIZE - 1)*sizeof(nsapi_addr_t));
 
@@ -717,7 +724,7 @@ nsapi_value_or_error_t nsapi_dns_query_multiple_async(NetworkStack *stack, const
 
     if (!dns_timer_running) {
         if (nsapi_dns_call_in(query->call_in_cb, DNS_TIMER_TIMEOUT, mbed::callback(nsapi_dns_query_async_timeout)) != NSAPI_ERROR_OK) {
-            delete query->host;
+            delete[] query->host;
             delete query;
             dns_mutex->unlock();
             return NSAPI_ERROR_NO_MEMORY;

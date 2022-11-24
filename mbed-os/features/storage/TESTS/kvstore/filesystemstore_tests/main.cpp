@@ -27,9 +27,9 @@
 #include "utest.h"
 #include <stdlib.h>
 
-#if !defined(TARGET_K64F)
-#error [NOT_SUPPORTED] Kvstore API tests run only on K64F devices
-#endif
+#if !defined(TARGET_K64F) && !defined(TARGET_ARM_FM)
+#error [NOT_SUPPORTED] Kvstore API tests run only on K64F devices and Fastmodels
+#else
 
 #define FSST_TEST_NUM_OF_THREADS 5
 
@@ -521,3 +521,4 @@ int main()
     return !Harness::run(specification);
 }
 
+#endif // !defined(TARGET_K64F) && !defined(TARGET_ARM_FM)

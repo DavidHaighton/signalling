@@ -127,10 +127,10 @@ static inline void uart_irq(uint32_t transmit_empty, uint32_t receive_full, uint
     }
 
     if (serial_irq_ids[index] != 0) {
-        if (transmit_empty)
+        if (transmit_empty && (UART_GetEnabledInterrupts(uart_addrs[index]) & kUART_TxDataRegEmptyInterruptEnable))
             irq_handler(serial_irq_ids[index], TxIrq);
 
-        if (receive_full)
+        if (receive_full && (UART_GetEnabledInterrupts(uart_addrs[index]) & kUART_RxDataRegFullInterruptEnable))
             irq_handler(serial_irq_ids[index], RxIrq);
     }
 }
@@ -326,5 +326,15 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
 }
 
 #endif
+
+void serial_wait_tx_complete(uint32_t uart_index)
+{
+    UART_Type *base = uart_addrs[uart_index];
+
+    /* Wait till data is flushed out of transmit buffer */
+    while (!(kUART_TransmissionCompleteFlag & UART_GetStatusFlags((UART_Type *)base)))
+    {
+    }
+}
 
 #endif

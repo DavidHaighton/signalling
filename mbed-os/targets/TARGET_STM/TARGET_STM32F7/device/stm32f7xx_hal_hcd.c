@@ -340,8 +340,8 @@ HAL_StatusTypeDef HAL_HCD_HC_SubmitRequest(HCD_HandleTypeDef *hhcd,
                                             uint8_t do_ping)
 {
   // MBED: added
-  if ((hhcd->hc[ch_num].ep_is_in != direction)) {
-    if ((hhcd->hc[ch_num].ep_type == EP_TYPE_CTRL)){
+  if (hhcd->hc[ch_num].ep_is_in != direction) {
+    if (hhcd->hc[ch_num].ep_type == EP_TYPE_CTRL){
       /*  reconfigure the endpoint !!! from tx -> rx, and rx ->tx  */
       USB_OTG_GlobalTypeDef *USBx = hhcd->Instance;
       if (direction)
@@ -969,6 +969,7 @@ static void HCD_HC_IN_IRQHandler   (HCD_HandleTypeDef *hhcd, uint8_t chnum)
       tmpreg &= ~USB_OTG_HCCHAR_CHDIS;
       tmpreg |= USB_OTG_HCCHAR_CHENA;
       USBx_HC(chnum)->HCCHAR = tmpreg;
+      reactivate = 1;
     }
     __HAL_HCD_CLEAR_HC_INT(chnum, USB_OTG_HCINT_CHH);
     // MBED: changed

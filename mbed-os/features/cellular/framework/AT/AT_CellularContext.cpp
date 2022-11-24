@@ -59,6 +59,7 @@ AT_CellularContext::~AT_CellularContext()
 {
     tr_info("Delete CellularContext with apn: [%s] (%p)", _apn ? _apn : "", this);
 
+    _is_blocking = true;
     (void)disconnect();
 
     if (_nw) {
@@ -170,8 +171,8 @@ nsapi_error_t AT_CellularContext::check_operation(nsapi_error_t err, ContextOper
     _current_op = op;
     if (err == NSAPI_ERROR_IN_PROGRESS || err == NSAPI_ERROR_OK) {
         if (_is_blocking) {
-            int sema_err = _semaphore.wait(get_timeout_for_operation(op)); // cellular network searching may take several minutes
-            if (sema_err != 1) {
+            int sema_acq = _semaphore.try_acquire_for(get_timeout_for_operation(op)); // cellular network searching may take several minutes
+            if (!sema_acq) {
                 tr_warning("No cellular connection");
                 return NSAPI_ERROR_TIMEOUT;
             }
@@ -235,6 +236,16 @@ const char *AT_CellularContext::get_ip_address()
     }
     return NULL;
 #endif
+}
+
+char *AT_CellularContext::get_interface_name(char *interface_name)
+{
+    if (_cid < 0) {
+        return NULL;
+    }
+    MBED_ASSERT(interface_name);
+    sprintf(interface_name, "ce%02d", _cid);
+    return interface_name;
 }
 
 void AT_CellularContext::attach(Callback<void(nsapi_event_t, intptr_t)> status_cb)
@@ -384,9 +395,8 @@ bool AT_CellularContext::get_context()
                 // APN matched -> Check PDP type
                 pdp_type_t pdp_type = string_to_pdp_type(pdp_type_from_context);
 
-                // Accept exact matching PDP context type or dual PDP context for IPv4/IPv6 only modems
-                if (get_property(pdp_type_t_to_cellular_property(pdp_type)) ||
-                        ((pdp_type == IPV4V6_PDP_TYPE && (modem_supports_ipv4 || modem_supports_ipv6)) && !_nonip_req)) {
+                // Accept exact matching PDP context type
+                if (get_property(pdp_type_t_to_cellular_property(pdp_type))) {
                     _pdp_type = pdp_type;
                     _cid = cid;
                 }
@@ -469,7 +479,30 @@ nsapi_error_t AT_CellularContext::do_activate_context()
 
 nsapi_error_t AT_CellularContext::activate_ip_context()
 {
-    return find_and_activate_context();
+    nsapi_error_t ret = find_and_activate_context();
+#if !NSAPI_PPP_AVAILABLE
+    if (ret == NSAPI_ERROR_OK) {
+        pdpContextList_t params_list;
+        if (get_pdpcontext_params(params_list) == NSAPI_ERROR_OK) {
+            pdpcontext_params_t *pdp = params_list.get_head();
+            while (pdp) {
+                SocketAddress addr;
+                if (addr.set_ip_address(pdp->dns_secondary_addr)) {
+                    tr_info("DNS secondary %s", pdp->dns_secondary_addr);
+                    char ifn[5]; // "ce" + two digit _cid + zero
+                    add_dns_server(addr, get_interface_name(ifn));
+                }
+                if (addr.set_ip_address(pdp->dns_primary_addr)) {
+                    tr_info("DNS primary %s", pdp->dns_primary_addr);
+                    char ifn[5]; // "ce" + two digit _cid + zero
+                    add_dns_server(addr, get_interface_name(ifn));
+                }
+                pdp = pdp->next;
+            }
+        }
+    }
+#endif
+    return ret;
 }
 
 nsapi_error_t AT_CellularContext::activate_non_ip_context()
@@ -659,15 +692,14 @@ void AT_CellularContext::ppp_disconnected()
 
 #endif //#if NSAPI_PPP_AVAILABLE
 
-nsapi_error_t AT_CellularContext::disconnect()
+void AT_CellularContext::do_disconnect()
 {
-    tr_info("CellularContext disconnect()");
     if (!_nw || !_is_connected) {
         if (_new_context_set) {
             delete_current_context();
         }
         _cid = -1;
-        return NSAPI_ERROR_NO_CONNECTION;
+        _cb_data.error = NSAPI_ERROR_NO_CONNECTION;
     }
 
     // set false here so callbacks know that we are not connected and so should not send DISCONNECTED
@@ -703,8 +735,22 @@ nsapi_error_t AT_CellularContext::disconnect()
         delete_current_context();
     }
     _cid = -1;
+    _cb_data.error = _at.unlock_return_error();
+}
 
-    return _at.unlock_return_error();
+nsapi_error_t AT_CellularContext::disconnect()
+{
+    tr_info("CellularContext disconnect()");
+    if (_is_blocking) {
+        do_disconnect();
+        return _cb_data.error;
+    } else {
+        int event_id = _device->get_queue()->call_in(0, this, &AT_CellularContext::do_disconnect);
+        if (event_id == 0) {
+            return NSAPI_ERROR_NO_MEMORY;
+        }
+        return NSAPI_ERROR_OK;
+    }
 }
 
 void AT_CellularContext::deactivate_ip_context()
@@ -744,10 +790,7 @@ void AT_CellularContext::check_and_deactivate_context()
     }
 
     if (_new_context_set) {
-        _at.clear_error();
-        _at.cmd_start("AT+CGDCONT=");
-        _at.write_int(_cid);
-        _at.cmd_stop_read_resp();
+        delete_current_context();
     }
 
     _at.restore_at_timeout();
@@ -1043,7 +1086,7 @@ nsapi_error_t AT_CellularContext::setup_control_plane_opt()
     }
 
     //wait for control plane opt call back to release semaphore
-    _cp_opt_semaphore.wait(CP_OPT_NW_REPLY_TIMEOUT);
+    _cp_opt_semaphore.try_acquire_for(CP_OPT_NW_REPLY_TIMEOUT);
 
     if (_cp_in_use) {
         return NSAPI_ERROR_OK;
