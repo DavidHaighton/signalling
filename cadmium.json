@@ -20,7 +20,6 @@
 		   "-Wno-register",
 		   "-DBOOST_NO_PLATFORM_CONFIG",
 		   "-DRT_ARM_MBED",
-		   "-DNO_LOGGING",
 		   "-fexceptions",
 		   "-nodefaultlibs", "-nostdlib", "-nostartfiles", "-static"],
         "asm": ["-x", "assembler-with-cpp"],

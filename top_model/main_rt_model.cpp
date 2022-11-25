@@ -1,3 +1,6 @@
+#ifndef NO_LOGGING
+	#include <cadmium/core/logger/rt.hpp>
+#endif
 #include <cadmium/core/simulation/root_coordinator.hpp>
 #include <limits>
 #include "blinkySystem.hpp"
@@ -11,6 +14,11 @@ int main(int argc, char *argv[]) {
 
 	auto model = std::make_shared<blinkySystem>("blinkySystem");
 	auto rootCoordinator = cadmium::RootCoordinator(model);
+#ifndef NO_LOGGING
+	printf("[simulation] welcome to rt-cadmium v2!\n"); // printing to serial port
+	auto logger = std::make_shared<cadmium::RTLogger>(";");
+	rootCoordinator.setLogger(logger);
+#endif
 	rootCoordinator.start();
 	rootCoordinator.simulate(std::numeric_limits<double>::infinity());
 	rootCoordinator.stop();

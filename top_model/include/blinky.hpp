@@ -45,10 +45,9 @@ namespace cadmium::blinkySystem {
 		Blinky(const std::string& id): Atomic<BlinkyState>(id, BlinkyState()) {
 			out = addOutPort<bool>("out");
 			in  = addInPort<bool>("in");
-			slowToggleTime = 0.75;  
-			fastToggleTime = 0.25;
+			slowToggleTime = 1.5;  
+			fastToggleTime = 0.75;
 			state.sigma = fastToggleTime;
-			printf("[blinky] init function\n");
 		}
 
 		/**
