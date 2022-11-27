@@ -2,38 +2,50 @@
 #define CADMIUM_EXAMPLE_BLINKY_HPP_
 
 #include <cadmium/core/modeling/coupled.hpp>
-#include <cadmium/core/real_time/arm_mbed/io/digitalOutput.hpp>
-#include <cadmium/core/real_time/arm_mbed/io/digitalInput.hpp>
-// #include <cadmium/core/real_time/arm_mbed/io/interruptInput.hpp>
+
+#ifdef RT_ARM_MBED
+	#include <cadmium/core/real_time/arm_mbed/io/digitalOutput.hpp>
+	#include <cadmium/core/real_time/arm_mbed/io/digitalInput.hpp>
+#endif
+
 #include "blinky.hpp"
-#include "../mbed.h"
-#include "PinNames.h"
+
+#ifdef RT_ARM_MBED
+	#include "../mbed.h"
+	#include "PinNames.h"
+#else
+	#include "generator.hpp"
+#endif
 
 namespace cadmium::blinkySystem {
-	//! Coupled DEVS model to show how the IEStream atomic model works.
+
 	struct blinkySystem : public Coupled {
 
 		/**
-		 * Constructor function for the iestream model.
-		 * @param id ID of the iestream model.
-		 * @param filePath path to the input file to be read.
+		 * Constructor function for the blinkySystem model.
+		 * @param id ID of the blinkySystem model.
 		 */
 		blinkySystem(const std::string& id) : Coupled(id) {
-		
-			// NUCLEO F103RB	
-			auto digitalOutput = addComponent<DigitalOutput>("digitalOuput", LED1); // PC_13); // LED1); // D3);
-			auto digitalInput  = addComponent<DigitalInput>("digital", PC_13); // PB_14); // PC_13); // D11);
+#ifdef RT_ARM_MBED		
+			// NUCLEO F401RE
+			// auto digitalOutput = addComponent<DigitalOutput>("digitalOuput", LED1);
+			// auto digitalInput  = addComponent<DigitalInput>("digitalInput", PC_13);
 			// BLUE PILL
-			// auto digitalOutput = addComponent<DigitalOutput>("digitalOuput", PC_13); // LED1); // D3);
-			// auto digitalInput  = addComponent<DigitalInput>("digital", PB_14); // PC_13); // D11);
+			auto digitalOutput = addComponent<DigitalOutput>("digitalOuput", PC_13);
+			auto digitalInput  = addComponent<DigitalInput>("digital", PB_14);
+#else
+			auto generator = addComponent<Generator>("generator");
+#endif
 			auto blinky = addComponent<Blinky>("blinky");
 			
+#ifdef RT_ARM_MBED
 			addCoupling(digitalInput->out, blinky->in);
 			addCoupling(blinky->out, digitalOutput->in);
-			// addCoupling(digitalInput->out, digitalOutput->in);
-
+#else
+			addCoupling(generator->out, blinky->in);
+#endif
 		}
 	};
-}  //namespace cadmium::example::covidSupervisorySystem
+}  //namespace cadmium::blinkySystem
 
 #endif //CADMIUM_EXAMPLE_BLINKY_HPP_

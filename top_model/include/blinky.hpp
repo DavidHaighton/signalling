@@ -2,33 +2,34 @@
 #define _BLINKY_HPP__
 
 #include <cadmium/core/modeling/atomic.hpp>
+
 #ifndef NO_LOGGING
 	#include <iostream>
 #endif
 
 namespace cadmium::blinkySystem {
-	//! Class for representing the Processor DEVS model state.struct BlinkyState {
+	//! Class for representing the Blinky DEVS model state.struct BlinkyState {
 	struct BlinkyState {
 		double sigma;
 		bool lightOn;
 		bool fastToggle;
-		//! Processor state constructor. By default, the processor is idling.
+		//! Blinky state constructor.
 		BlinkyState(): sigma(0), lightOn(false), fastToggle(false)  {}
 	};
 #ifndef NO_LOGGING
 	/**
-	 * Insertion operator for ProcessorState objects. It only displays the value of sigma.
+	 * Insertion operator for BlinkyState objects. It displays the value of sigma and lightOn.
 	 * @param out output stream.
 	 * @param s state to be represented in the output stream.
-	 * @return output stream with sigma already inserted.
+	 * @return output stream with sigma and lightOn already inserted.
 	 */
 	std::ostream& operator<<(std::ostream &out, const BlinkyState& state) {
-		out << "Status:, " << state.lightOn;
+		out << "Status:, " << state.lightOn << ", sigma: " << state.sigma;
 		return out;
 	}
 #endif
 
-	//! Atomic DEVS model of a Job processor.
+	//! Atomic DEVS model of Blinky.
 	class Blinky : public Atomic<BlinkyState> {
 	 private:
 		
@@ -40,18 +41,18 @@ namespace cadmium::blinkySystem {
 
 		/**
 		 * Constructor function.
-		 * @param id ID of the new Processor model object.
+		 * @param id ID of the new Blinky model object.
 		 */
 		Blinky(const std::string& id): Atomic<BlinkyState>(id, BlinkyState()) {
 			out = addOutPort<bool>("out");
 			in  = addInPort<bool>("in");
-			slowToggleTime = 1.5;  
+			slowToggleTime = 3.0;  
 			fastToggleTime = 0.75;
 			state.sigma = fastToggleTime;
 		}
 
 		/**
-		 * It updates the ProcessorState::clock, clears the ProcessorState::Job being processed, and passivates.
+		 * It updates the BlinkyState::lightOn.
 		 * @param state reference to the current state of the model.
 		 */
 		void internalTransition(BlinkyState& state) const override {
@@ -59,8 +60,7 @@ namespace cadmium::blinkySystem {
 		}
 
 		/**
-		 * Updates ProcessorState::clock and ProcessorState::sigma.
-		 * If it is idling and gets a new Job via the Processor::inGenerated port, it starts processing it.
+		 * Updates BlinkyState::fastToggle and BlinkyState::sigma.
 		 * @param state reference to the current model state.
 		 * @param e time elapsed since the last state transition function was triggered.
 		 * @param x reference to the model input port set.
@@ -69,7 +69,8 @@ namespace cadmium::blinkySystem {
 
 			if(!in->empty()){
 				for( const auto x : in->getBag()){
-					state.fastToggle = (x==0);
+					if (x==0)
+						state.fastToggle = !state.fastToggle;
 				}
 
 				if(state.fastToggle)
@@ -80,18 +81,16 @@ namespace cadmium::blinkySystem {
 		}
 
 		/**
-		 * It outputs the already processed ProcessorState::Job via the Processor::outProcessed port.
+		 * It outputs the already processed BlinkyState::lightOn via the out port.
 		 * @param state reference to the current model state.
 		 * @param y reference to the atomic model output port set.
 		 */
-		void output(const BlinkyState& state) const override {	
-			// bool out;
-			// out = (state.lightOn ? 1 : 0);
+		void output(const BlinkyState& state) const override {
 			out->addMessage(state.lightOn);	
 		}
 
 		/**
-		 * It returns the value of ProcessorState::sigma.
+		 * It returns the value of BlinkyState::sigma.
 		 * @param state reference to the current model state.
 		 * @return the sigma value.
 		 */
@@ -99,6 +98,6 @@ namespace cadmium::blinkySystem {
 			return state.sigma;
 		}
 	};
-}  //namespace cadmium::example::covidSupervisorySystem
+}  //namespace cadmium::blinkySystem
 
 #endif //_BLINKY_HPP__
