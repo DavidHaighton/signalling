@@ -36,10 +36,11 @@ outgen = outgen_list[:len(tgen)]
 
 
 plt.figure(figsize=(15,5))
-plt.step(tblk,outblk)
-plt.plot(tgen,outgen,'r*')
+plt.step(tblk,outblk,label='output')
+plt.plot(tgen,outgen,'r*',label='input')
 plt.title('Blinky Output')
 plt.xlabel('time (s)')
 plt.ylabel('value')
 plt.grid(True)
+plt.legend()
 plt.show()
