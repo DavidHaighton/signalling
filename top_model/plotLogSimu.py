@@ -27,11 +27,13 @@ with open(LOGFILE,'r') as f:
 
 f.close()
 
-T = 50
-tblk = [x for x in tblk_list if x<T]
+T1 = 500
+T2 = 600
+tblk = [x for x in tblk_list if x<T2 and x>T1]
 outblk = outblk_list[:len(tblk)]
-tgen = [x for x in tgen_list if x<T]
+tgen = [x for x in tgen_list if x<T2 and x>T1]
 outgen = outgen_list[:len(tgen)]
+
 
 plt.figure(figsize=(15,5))
 plt.step(tblk,outblk)

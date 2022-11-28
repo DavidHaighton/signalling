@@ -26,22 +26,18 @@ namespace cadmium::blinkySystem {
 		 * @param id ID of the blinkySystem model.
 		 */
 		blinkySystem(const std::string& id) : Coupled(id) {
+            auto blinky = addComponent<Blinky>("blinky");
 #ifdef RT_ARM_MBED		
 			// NUCLEO F401RE
-			// auto digitalOutput = addComponent<DigitalOutput>("digitalOuput", LED1);
-			// auto digitalInput  = addComponent<DigitalInput>("digitalInput", PC_13);
+			auto digitalOutput = addComponent<DigitalOutput>("digitalOuput", LED1);
+			auto digitalInput  = addComponent<DigitalInput>("digitalInput", PC_13);
 			// BLUE PILL
-			auto digitalOutput = addComponent<DigitalOutput>("digitalOuput", PC_13);
-			auto digitalInput  = addComponent<DigitalInput>("digital", PB_14);
-#else
-			auto generator = addComponent<Generator>("generator");
-#endif
-			auto blinky = addComponent<Blinky>("blinky");
-			
-#ifdef RT_ARM_MBED
+			// auto digitalOutput = addComponent<DigitalOutput>("digitalOuput", PC_13);
+			// auto digitalInput  = addComponent<DigitalInput>("digitalInput", PB_14);
 			addCoupling(digitalInput->out, blinky->in);
 			addCoupling(blinky->out, digitalOutput->in);
 #else
+			auto generator = addComponent<Generator>("generator");
 			addCoupling(generator->out, blinky->in);
 #endif
 		}
