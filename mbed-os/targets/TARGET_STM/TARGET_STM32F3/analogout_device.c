@@ -36,19 +36,27 @@
 #include "PeripheralPins.h"
 
 // These variables are used for the "free" function
-static int pa4_used = 0;
-static int pa5_used = 0;
+static int channel1_used = 0;
+#if defined(DAC_CHANNEL_2)
+static int channel2_used = 0;
+#endif
 
-void analogout_init(dac_t *obj, PinName pin)
+#if STATIC_PINMAP_READY
+#define ANALOGOUT_INIT_DIRECT analogout_init_direct
+void analogout_init_direct(dac_t *obj, const PinMap *pinmap)
+#else
+#define ANALOGOUT_INIT_DIRECT _analogout_init_direct
+static void _analogout_init_direct(dac_t *obj, const PinMap *pinmap)
+#endif
 {
     DAC_ChannelConfTypeDef sConfig = {0};
 
     // Get the peripheral name from the pin and assign it to the object
-    obj->dac = (DACName)pinmap_peripheral(pin, PinMap_DAC);
+    obj->dac = (DACName)pinmap->peripheral;
     MBED_ASSERT(obj->dac != (DACName)NC);
 
     // Get the pin function and assign the used channel to the object
-    uint32_t function = pinmap_function(pin, PinMap_DAC);
+    uint32_t function = (uint32_t)pinmap->function;
     MBED_ASSERT(function != (uint32_t)NC);
 
     // Save the channel for the write and read functions
@@ -67,10 +75,11 @@ void analogout_init(dac_t *obj, PinName pin)
     }
 
     // Configure GPIO
-    pinmap_pinout(pin, PinMap_DAC);
+    pin_function(pinmap->pin, pinmap->function);
+    pin_mode(pinmap->pin, PullNone);
 
     // Save the pin for future use
-    obj->pin = pin;
+    obj->pin = pinmap->pin;
 
     // Enable DAC clock
     if (obj->dac == DAC_1) {
@@ -101,47 +110,63 @@ void analogout_init(dac_t *obj, PinName pin)
     sConfig.DAC_OutputSwitch = DAC_OUTPUTSWITCH_ENABLE;
 #endif
 
-    if (pin == PA_4) {
-        pa4_used = 1;
+    if (obj->channel == DAC_CHANNEL_1) {
+        channel1_used = 1;
     }
-
-    if (pin == PA_5) {
-        pa5_used = 1;
+#if defined(DAC_CHANNEL_2)
+    if (obj->channel == DAC_CHANNEL_2) {
+        channel2_used = 1;
     }
-
+#endif
     if (HAL_DAC_ConfigChannel(&obj->handle, &sConfig, obj->channel) != HAL_OK) {
         error("HAL_DAC_ConfigChannel failed");
     }
 
     analogout_write_u16(obj, 0);
+    HAL_DAC_Start(&obj->handle, obj->channel);
+}
+
+void analogout_init(dac_t *obj, PinName pin)
+{
+    int peripheral = (int)pinmap_peripheral(pin, PinMap_DAC);
+    int function = (int)pinmap_find_function(pin, PinMap_DAC);
+
+    const PinMap static_pinmap = {pin, peripheral, function};
+
+    ANALOGOUT_INIT_DIRECT(obj, &static_pinmap);
 }
 
 void analogout_free(dac_t *obj)
 {
     // Reset DAC and disable clock
-    if (obj->pin == PA_4) {
-        pa4_used = 0;
+    if (obj->channel == DAC_CHANNEL_1) {
+        channel1_used = 0;
     }
-    if (obj->pin == PA_5) {
-        pa5_used = 0;
+#if defined(DAC_CHANNEL_2)
+    if (obj->channel == DAC_CHANNEL_2) {
+        channel2_used = 0;
     }
-
-    if ((pa4_used == 0) && (pa5_used == 0)) {
+#endif
+    if ((channel1_used == 0)
+#if defined(DAC_CHANNEL_2)
+        && (channel2_used == 0)
+#endif
+        ) {
         __HAL_RCC_DAC1_FORCE_RESET();
         __HAL_RCC_DAC1_RELEASE_RESET();
         __HAL_RCC_DAC1_CLK_DISABLE();
     }
 
 #if defined(DAC2)
-    if (obj->pin == PA_6) {
+    if (obj->dac == DAC_2) {
         __HAL_RCC_DAC2_FORCE_RESET();
         __HAL_RCC_DAC2_RELEASE_RESET();
         __HAL_RCC_DAC2_CLK_DISABLE();
     }
 #endif
 
-    // Configure GPIO
-    pin_function(obj->pin, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+    // Configure GPIO back to reset value
+    pin_function(obj->pin, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0));
 }
 
 const PinMap *analogout_pinmap()

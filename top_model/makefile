@@ -1,6 +1,7 @@
 embedded:
 #	mbed compile --target NUCLEO_F401RE --toolchain GCC_ARM --profile ../cadmium_logging_off.json --flash
-	mbed compile --target NUCLEO_F401RE --toolchain GCC_ARM --profile ../cadmium_logging_on.json --flash
+#	mbed compile --target NUCLEO_F411RE --toolchain GCC_ARM --profile ../cadmium_logging_on.json --flash
+	mbed compile --target NUCLEO_H743ZI2 --toolchain GCC_ARM --profile ../cadmium_logging_on.json --flash
 #	mbed compile --target NUCLEO_F103RB --toolchain GCC_ARM --profile ../cadmium_logging_off.json
 #	mbed compile --target NUCLEO_F103RB --toolchain GCC_ARM --profile ../cadmium_logging_on.json
 

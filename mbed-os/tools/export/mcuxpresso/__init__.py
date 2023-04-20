@@ -43,10 +43,7 @@ from tools.build_api import prepare_toolchain
 
 
 POST_BINARY_WHITELIST = set([
-    "TEENSY3_1Code.binary_hook",
-    "MCU_NRF51Code.binary_hook",
-    "LPCTargetCode.lpc_patch",
-    "LPC4088Code.binary_hook"
+    "LPCTargetCode.lpc_patch"
 ])
 
 class MCUXpresso(GNUARMEclipse):
@@ -356,6 +353,7 @@ class MCUXpresso(GNUARMEclipse):
             'Cortex-M7': {'mcpu': 'cortex-m7', 'fpu_unit': None},
             'Cortex-M7F': {'mcpu': 'cortex-m7', 'fpu_unit': 'fpv4spd16'},
             'Cortex-M7FD': {'mcpu': 'cortex-m7', 'fpu_unit': 'fpv5d16'},
+            'Cortex-A5': {'mcpu': 'cortex-a5', 'fpu_unit': 'vfpv3'},
             'Cortex-A9': {'mcpu': 'cortex-a9', 'fpu_unit': 'vfpv3'}
         }
 

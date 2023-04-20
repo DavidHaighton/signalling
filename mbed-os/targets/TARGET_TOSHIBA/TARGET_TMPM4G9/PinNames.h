@@ -1,5 +1,8 @@
 /* mbed Microcontroller Library
- * (C)Copyright TOSHIBA ELECTRONIC DEVICES & STORAGE CORPORATION 2018 All rights reserved
+ *
+ * Copyright (C) 2019, Toshiba Electronic Device Solutions Corporation
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/* MBED TARGET LIST: TMPM4G9 */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -92,10 +98,10 @@ typedef enum {
     A5 = PN5,
 
     // USB2_UART
-    USBTX = PU0,
-    USBRX = PU1,
-    MBEDIF_TXD = USBTX,
-    MBEDIF_RXD = USBRX,
+    CONSOLE_TX = PU0,
+    CONSOLE_RX = PU1,
+    MBEDIF_TXD = CONSOLE_TX,
+    MBEDIF_RXD = CONSOLE_RX,
 
     MBED_CONF_APP_UART0_TX = PE3,
     MBED_CONF_APP_UART0_RX = PE2,

@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/* MBED TARGET LIST: SDT64B */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -22,13 +26,14 @@
 extern "C" {
 #endif
 
+/* If this macro is defined, then constexpr utility functions for pin-map seach can be used. */
+#define STATIC_PINMAP_READY 1
+
 typedef enum {
     PIN_INPUT,
     PIN_OUTPUT
 } PinDirection;
 
-#define DAC0_OUT 0xFEFE /* DAC does not have Pin Name in RM */
-#define NOT_CONNECTED (int)0xFFFFFFFF
 #define GPIO_PORT_SHIFT 12
 
 typedef enum {
@@ -193,7 +198,10 @@ typedef enum {
     PTE30 = (4 << GPIO_PORT_SHIFT | 30),
     PTE31 = (4 << GPIO_PORT_SHIFT | 31),
 
-       // Analog
+    DAC0_OUT = 0xFEFE, /* DAC does not have Pin Name in RM */
+    NOT_CONNECTED = (int)0xFFFFFFFF,
+
+    // Analog
     A0 = PTB6,
     A1 = PTB7,
     A2 = DAC0_OUT,
@@ -224,8 +232,8 @@ typedef enum {
     LED_BLUE  = LED2,
 
     // USB bridge and SWD UART connected UART pins
-    USBTX = PTC15,
-    USBRX = PTC14,
+    CONSOLE_TX = PTC15,
+    CONSOLE_RX = PTC14,
 
     // UART pins
     UART0_RX  = PTC16,
@@ -233,8 +241,8 @@ typedef enum {
     UART0_CTS = PTC19,
     UART0_RTS = PTC18,
 
-    UART1_RX  = USBRX,
-    UART1_TX  = USBTX,
+    UART1_RX  = CONSOLE_RX,
+    UART1_TX  = CONSOLE_TX,
     UART1_CTS = PTC13,
     UART1_RTS = PTC12,
 

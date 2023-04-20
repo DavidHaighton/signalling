@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2018 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +24,7 @@
 struct gpio_irq_handler_t {
     gpio_irq_handler handler;
     gpio_irq_event event;
-    uint32_t id;
+    uintptr_t context;
 };
 
 /* Handlers registered */
@@ -68,7 +69,7 @@ static void handler(struct arm_gpio_dev_t* dev, uint32_t gpio_number,
 
     exp_pin_number = exp_pin_base + pin_number;
 
-    gpio_irq[exp_pin_number].handler(gpio_irq[exp_pin_number].id,
+    gpio_irq[exp_pin_number].handler(gpio_irq[exp_pin_number].context,
                                      gpio_irq[exp_pin_number].event);
 }
 
@@ -101,7 +102,7 @@ void PORT3_ALL_IRQHandler(void)
 #endif /* ARM_GPIO3 */
 
 int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler,
-                  uint32_t id)
+                  uintptr_t context)
 {
     struct arm_gpio_dev_t *gpio_dev;
 
@@ -145,7 +146,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler,
 
         /* Save the handler and id into the global structure */
         gpio_irq[pin].handler = handler;
-        gpio_irq[pin].id = id;
+        gpio_irq[pin].context = context;
 
         return 0;
     } else {
