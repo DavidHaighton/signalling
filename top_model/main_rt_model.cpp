@@ -10,7 +10,7 @@
 
 #include <limits>
 #include "blinkySystem.hpp"
-
+#include "CarSim.h"
 #ifdef RT_ARM_MBED
 	#include "../mbed.h"
 #endif
@@ -19,7 +19,7 @@ using namespace cadmium::blinkySystem;
 
 int main(int argc, char *argv[]) {
 
-	auto model = std::make_shared<blinkySystem>("blinkySystem");
+	auto model = std::make_shared<sim::CarSim>();
 	auto rootCoordinator = cadmium::RootCoordinator(model);
 
 #ifndef NO_LOGGING
@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
 	#ifdef RT_ARM_MBED
 		auto logger = std::make_shared<cadmium::RTLogger>(";");
 	# else
-		auto logger = std::make_shared<cadmium::CSVLogger>("blinkyLog.csv",";"); // new
+		auto logger = std::make_shared<cadmium::CSVLogger>("signalLog.csv",";"); // new
 	#endif
 
 	rootCoordinator.setLogger(logger);
