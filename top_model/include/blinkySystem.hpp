@@ -8,7 +8,6 @@
 	#include <cadmium/core/real_time/arm_mbed/io/digitalInput.hpp>
 #endif
 
-#include "blinky.hpp"
 
 #ifdef RT_ARM_MBED
 	#include "../mbed.h"
@@ -26,19 +25,16 @@ namespace cadmium::blinkySystem {
 		 * @param id ID of the blinkySystem model.
 		 */
 		blinkySystem(const std::string& id) : Coupled(id) {
-            auto blinky = addComponent<Blinky>("blinky");
-#ifdef RT_ARM_MBED		
+#ifdef RT_ARM_MBED
 			// NUCLEO F401RE
-			auto digitalOutput = addComponent<DigitalOutput>("digitalOuput", LED1);
-			auto digitalInput  = addComponent<DigitalInput>("digitalInput", PC_13);
+			auto digitalOutput = addComponent<DigitalOutput>("digitalOutput", PA_3);
+			auto digitalInput  = addComponent<DigitalInput>("digitalInput", PD_7);
 			// BLUE PILL
 			// auto digitalOutput = addComponent<DigitalOutput>("digitalOuput", PC_13);
 			// auto digitalInput  = addComponent<DigitalInput>("digitalInput", PB_14);
-			addCoupling(digitalInput->out, blinky->in);
-			addCoupling(blinky->out, digitalOutput->in);
+			addCoupling(digitalInput->out, digitalOutput->in);
 #else
 			auto generator = addComponent<Generator>("generator");
-			addCoupling(generator->out, blinky->in);
 #endif
 		}
 	};

@@ -1,3 +1,4 @@
+#define MISSED_DEADLINE_TOLERANCE 10000000
 #include <cadmium/core/simulation/root_coordinator.hpp>
 
 #ifndef NO_LOGGING
@@ -18,10 +19,9 @@
 using namespace cadmium::blinkySystem;
 
 int main(int argc, char *argv[]) {
-
-	auto model = std::make_shared<sim::CarSim>();
+    //auto model = std::make_shared<blinkySystem>("Blinky");
+    auto model = std::make_shared<sim::CarSim>();
 	auto rootCoordinator = cadmium::RootCoordinator(model);
-
 #ifndef NO_LOGGING
 
 	#ifdef RT_ARM_MBED
@@ -34,8 +34,8 @@ int main(int argc, char *argv[]) {
 #endif
 
 	rootCoordinator.start();
-// 	rootCoordinator.simulate(std::numeric_limits<double>::infinity());
-	rootCoordinator.simulate(1000.0);
+ 	rootCoordinator.simulate(std::numeric_limits<double>::infinity());
+	//rootCoordinator.simulate(1000.0);
 	rootCoordinator.stop();
 	return 0;
 }

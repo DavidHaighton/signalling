@@ -79,8 +79,8 @@ namespace sim{
                     case Turning::RIGHT:
                         frontLeftPort->addMessage(Mode::OFF);
                         frontRightPort->addMessage(Mode::BLINKING);
-                        backLeftPort->addMessage(Mode::BLINKING);
-                        backRightPort->addMessage(Mode::OFF);
+                        backLeftPort->addMessage(Mode::OFF);
+                        backRightPort->addMessage(Mode::BLINKING);
                         break;
                     default:
                         frontLeftPort->addMessage(Mode::OFF);
