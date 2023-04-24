@@ -47,7 +47,7 @@ namespace sim{
         }
 
         [[nodiscard]] double timeAdvance(const InputControllerState& s) const override {
-            return s.queue.empty()?std::numeric_limits<double>::infinity():0.01;
+            return s.queue.empty()?std::numeric_limits<double>::infinity():0.00;
         }
 
     };

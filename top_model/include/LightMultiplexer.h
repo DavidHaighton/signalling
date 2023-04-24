@@ -93,7 +93,7 @@ namespace sim{
         }
 
         [[nodiscard]] double timeAdvance(const LightMultiplexState& s) const override {
-            return s.intTransition?std::numeric_limits<double>::infinity():0.01;
+            return s.intTransition?std::numeric_limits<double>::infinity():0.00;
         }
 
     };
