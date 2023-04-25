@@ -7,21 +7,21 @@
 #include "LightController.h"
 namespace sim{
     enum class Turning {RIGHT, LEFT, NONE};
-    struct LightMultiplexState{
+    struct LightDemuxState{
         Turning direction = Turning::NONE;
         bool isBraking = false;
         bool intTransition = false;
     };
 
-    std::ostream& operator<<(std::ostream& out, const LightMultiplexState& s) {
+    std::ostream& operator<<(std::ostream& out, const LightDemuxState& s) {
        out << "{ isBraking:"<<(s.isBraking?"True":"False")<<" Left: "<<(s.direction==Turning::LEFT?"T":"F");
        out << " Right: " << (s.direction==Turning::RIGHT?"T":"F")<<"}";
         return out;
     }
-    struct LightMux: public cadmium::Atomic<LightMultiplexState>{
+    struct LightDemux: public cadmium::Atomic<LightDemuxState>{
         cadmium::Port<Mode> frontLeftPort, frontRightPort, backLeftPort, backRightPort;
         cadmium::Port<CommandPacket> in;
-        LightMux(): Atomic<LightMultiplexState>("Light Mux", LightMultiplexState()){
+        LightDemux(): Atomic<LightDemuxState>("Light DeMux", LightDemuxState()){
             in = addInPort<CommandPacket>("IN PORT");
             frontLeftPort = addOutPort<Mode>("FRONT LEFT OUT");
             frontRightPort= addOutPort<Mode>("FRONT RIGHT OUT");
@@ -29,11 +29,11 @@ namespace sim{
             backRightPort = addOutPort<Mode>("BACK RIGHT OUT");
         }
 
-        void internalTransition(LightMultiplexState& s) const override {
+        void internalTransition(LightDemuxState& s) const override {
             s.intTransition = true;
         }
 
-        void externalTransition(LightMultiplexState &s, double e) const override {
+        void externalTransition(LightDemuxState &s, double e) const override {
             auto message = in->getBag().front();
             s.intTransition = false;
             if(message.type == CommandPacketType::RIGHT_TURN){
@@ -46,7 +46,7 @@ namespace sim{
             }
         }
 
-        void output(const LightMultiplexState& s) const override {
+        void output(const LightDemuxState& s) const override {
             if(s.isBraking){
                 switch(s.direction){
                     case Turning::LEFT:
@@ -92,7 +92,7 @@ namespace sim{
             }
         }
 
-        [[nodiscard]] double timeAdvance(const LightMultiplexState& s) const override {
+        [[nodiscard]] double timeAdvance(const LightDemuxState& s) const override {
             return s.intTransition?std::numeric_limits<double>::infinity():0.00;
         }
 

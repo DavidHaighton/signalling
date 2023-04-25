@@ -8,7 +8,7 @@
 	#include <cadmium/core/real_time/arm_mbed/io/digitalInput.hpp>
 #endif
 
-#include "InputDemux.h"
+#include "InputMultiplexer.h"
 #include "CommandMessage.h"
 
 
@@ -67,7 +67,7 @@ namespace sim {
             auto left = addComponent<MockButton>("Left Turn Button", leftQ);
             auto right = addComponent<MockButton>("Right Turn Button", std::queue<std::pair<double,bool>>());
 #endif
-            auto controller = addComponent<InputDemux>();
+            auto controller = addComponent<InputMultiplexer>();
             output = addOutPort<CommandPacket>("Output");
 
             addCoupling(brakes->out, controller->brakePort);

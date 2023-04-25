@@ -8,7 +8,7 @@
 	#include <cadmium/core/real_time/arm_mbed/io/digitalInput.hpp>
 #endif
 
-#include "LightMultiplexer.h"
+#include "LightDemux.h"
 #include "LightSubsystem.h"
 #include "LightController.h"
 #include "CommandMessage.h"
@@ -39,19 +39,19 @@ namespace sim {
                     backLeft = addComponent<MockLight>("BL LED"),
                     backRight = addComponent<MockLight>("BR LED");
 #endif
-            auto mux = addComponent<LightMux>();
-            addCoupling(input, mux->in);
+            auto demux = addComponent<LightDemux>();
+            addCoupling(input, demux->in);
 
-            addCoupling(mux->frontLeftPort, frontLeftController->in);
+            addCoupling(demux->frontLeftPort, frontLeftController->in);
             addCoupling(frontLeftController->out, frontLeft->in);
 
-            addCoupling(mux->frontRightPort, frontRightController->in);
+            addCoupling(demux->frontRightPort, frontRightController->in);
             addCoupling(frontRightController->out, frontRight->in);
 
-            addCoupling(mux->backLeftPort, backLeftController->in);
+            addCoupling(demux->backLeftPort, backLeftController->in);
             addCoupling(backLeftController->out, backLeft->in);
 
-            addCoupling(mux->backRightPort, backRightController->in);
+            addCoupling(demux->backRightPort, backRightController->in);
             addCoupling(backRightController->out, backRight->in);
         }
     };

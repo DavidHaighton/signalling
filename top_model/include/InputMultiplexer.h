@@ -14,10 +14,10 @@ namespace sim{
             <<"}";
         return out;
     }
-    struct InputDemux: public cadmium::Atomic<InputControllerState>{
+    struct InputMultiplexer: public cadmium::Atomic<InputControllerState>{
         cadmium::Port<bool> brakePort, leftPort, rightPort;
         cadmium::Port<CommandPacket> out;
-        InputDemux(): Atomic<InputControllerState>("Input Controller", InputControllerState()){
+        InputMultiplexer(): Atomic<InputControllerState>("Input Controller", InputControllerState()){
             brakePort = addInPort<bool>("BrakeIN");
             leftPort = addInPort<bool>("leftIN");
             rightPort = addInPort<bool>("rightIN");
