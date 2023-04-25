@@ -1,37 +1,15 @@
-### RT_ARM_MBED INSTALL ###
+# Car front and tail lights simulation
+By David Haighton
 
-Clone this repo into an empty folder <br>
-Clone https://github.com/SimulationEverywhere/cadmium_v2/tree/dev-rt into the sample folder 
+This project is to demo how DEVS can be used for V&V in realtime systems by first simulating the project and testing it, then flashing the project on a board
 
-Move the boost_1_70_0.7z from SampleRTModel up one directory. Unpack it and install (Offical instructions found here https://www.boost.org/doc/libs/1_70_0/more/getting_started/unix-variants.html)
+## Compiling and Running
+You are required to have the branch of RT cadmium one directory above this one.
 
+To run the project in simulation mode, CD to top_model and run `make all`
 
+To run the project in embedded mode, connect the NUCLEO_H743ZI2 board to one of the USB ports of your computer and do the same thing, but do `make` instead of make all
 
-## Installing should be just ( I think)
-```shell
-cd boost_1_70_0 
-bootstrap.sh
-./b2 install
-```
-
-Your folder directory should look like:
-
-![File Directory](https://github.com/jonmenard/SampleRTModel/blob/main/ReadMeFiles/directorySetup.png?raw=true)
-With the cloned cadmium like: 
-
-![File Directory](https://github.com/jonmenard/SampleRTModel/blob/main/ReadMeFiles/cadmiumDirectories.png?raw=true)
-
-To run this model 
-
-## To run this model where NUCLEO_F01RE is replaced with the name of your microcontroller
-Plug you microcontroller in
-```shell
-cd SampleRtModel/top_model 
-mbed compile --target NUCLEO_F401RE --toolchain GCC_ARM --profile ../cadmium.json --flash
-
-```
-
-This mode will take a digital input from pin 13 and relay it to pin 2 using a polling rate of 100ms while the digital inputs from pin 13 will also be relayed to pin 4 using an interupt. The interupt signal should be faster than the polling.
-
-Sample video avaible at https://github.com/jonmenard/SampleRTModel/blob/main/ReadMeFiles/AsynchrnousEventTest.mp4
-
+## Testing
+all tests were done in 1 test suite which is the main
+the signalLog.csv will show all possible nodes and transitions of the entire application.
