@@ -15,7 +15,7 @@ namespace sim{
 
     std::ostream& operator<<(std::ostream& out, const LightMultiplexState& s) {
        out << "{ isBraking:"<<(s.isBraking?"True":"False")<<" Left: "<<(s.direction==Turning::LEFT?"T":"F");
-       out << " Right: " << (s.direction==Turning::RIGHT?"T":"F");
+       out << " Right: " << (s.direction==Turning::RIGHT?"T":"F")<<"}";
         return out;
     }
     struct LightMux: public cadmium::Atomic<LightMultiplexState>{

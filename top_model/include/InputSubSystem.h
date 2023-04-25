@@ -30,12 +30,39 @@ namespace sim {
             auto right = addComponent<cadmium::DigitalInput>("Right Turn Button", PD_5);
 #else
             auto brakeQ = std::queue<std::pair<double,bool>>();
-            brakeQ.emplace(1, true);
             brakeQ.emplace(10,false);
             auto leftQ= std::queue<std::pair<double,bool>>();
-            leftQ.emplace(1, true);
             leftQ.emplace(30, false);
-
+            auto rightQ= std::queue<std::pair<double,bool>>();
+            rightQ.emplace(30, false);
+            //show none for 10s
+            leftQ.emplace(0.001,false);
+            rightQ.emplace(0.002,false);
+            brakeQ.emplace(0,false);
+            //show just brakes for 10s
+            leftQ.emplace(10,false);
+            rightQ.emplace(10,false);
+            brakeQ.emplace(10, true);
+            //show just left for 10s
+            leftQ.emplace(10,true);
+            rightQ.emplace(10,false);
+            brakeQ.emplace(10, false);
+            //show just right for 10s
+            leftQ.emplace(10,false);
+            rightQ.emplace(10,true);
+            brakeQ.emplace(10, false);
+            //show brakes and right for 10s
+            leftQ.emplace(10,false);
+            rightQ.emplace(10,true);
+            brakeQ.emplace(10, true);
+            // show brakes and left for 10s
+            leftQ.emplace(10,true);
+            rightQ.emplace(10, false);
+            brakeQ.emplace(10, true);
+            // turn it all off
+            leftQ.emplace(10,false);
+            rightQ.emplace(10,false);
+            brakeQ.emplace(10,false);
             auto brakes = addComponent<MockButton>("Brake Button", brakeQ);
             auto left = addComponent<MockButton>("Left Turn Button", leftQ);
             auto right = addComponent<MockButton>("Right Turn Button", std::queue<std::pair<double,bool>>());

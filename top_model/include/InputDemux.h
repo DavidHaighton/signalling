@@ -30,7 +30,6 @@ namespace sim{
         }
 
         void externalTransition(InputControllerState &s, double e) const override {
-            printf("External Transition!\n");
             if(!brakePort->empty()){
                 s.queue.emplace(CommandPacketType::BRAKE, brakePort->getBag()[0]);
             }
